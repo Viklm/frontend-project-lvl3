@@ -1,2 +1,5 @@
-import './style.css';
+import './style.scss';
 import 'bootstrap';
+//import app from './app.js';
+
+//app();
