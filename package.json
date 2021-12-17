@@ -2,8 +2,9 @@
   "name": "@hexlet/code",
   "version": "0.1.0",
   "description": "",
+  
   "scripts": {
-    "test": "jest --colors"
+    "serve": "npx webpack serve --mode=development --open"
   },
   "repository": {
     "type": "git",
