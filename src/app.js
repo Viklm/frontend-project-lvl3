@@ -17,7 +17,6 @@ export default () => {
       links: [],
       feeds: [],
       posts: [],
-      countOfCall: 0,
       readPosts: [],
       id: {
         post: 0,
@@ -35,19 +34,25 @@ export default () => {
     const watchedState = watched(state, i18nextInstance);
 
     const updatePosts = () => {
-      setTimeout(() => {
-        const request = (path) => axios.get(getRssPath(path))
-          .then((response) => parser(response.data.contents))
-          .then(({ posts }) => posts);
-        Promise.all(watchedState.links.map((link) => request(link)))
-          .then((data) => {
-            const result = data.flat();
-            watchedState.posts.unshift(...result);
-            watchedState.form.update = 'loaded';
-            updatePosts();
-          });
-      }, 5000);
+      watchedState.form.update = 'loading';
+      if (watchedState.links.length === 0) {
+        return setTimeout(updatePosts, 5000);
+      }
+      const request = (path) => axios.get(getRssPath(path))
+        .then((response) => parser(response.data.contents))
+        .then(({ posts }) => posts);
+      Promise.all(watchedState.links.map((link) => request(link)))
+        .then((data) => {
+          const result = data.flat();
+          watchedState.posts.splice(0, watchedState.posts.length);
+          watchedState.posts.unshift(...result);
+          watchedState.form.update = 'loaded';
+          setTimeout(updatePosts, 5000);
+        });
+      return true;
     };
+
+    setTimeout(updatePosts, 5000);
 
     const form = document.querySelector('form');
     form.addEventListener('submit', (e) => {
@@ -73,11 +78,6 @@ export default () => {
               watchedState.feeds.unshift(feed);
               watchedState.posts.unshift(...posts);
               watchedState.form.process = 'successful';
-              watchedState.form.update = 'loading';
-              watchedState.countOfCall += 1;
-              if (watchedState.countOfCall < 2) {
-                updatePosts();
-              }
             });
         }
       });
