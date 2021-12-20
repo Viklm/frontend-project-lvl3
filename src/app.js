@@ -21,7 +21,7 @@ export default () => {
       form: {
         update: null, // loading, loaded
         validationState: 'valid', // valid, invalid, duplicate
-        process: 'filling', // filling, failed, processed, successful
+        process: 'filling', // filling, failed, processed, successful, no-connect
       },
     };
 
@@ -71,11 +71,15 @@ export default () => {
               if (data === null) {
                 watchedState.links.shift();
                 watchedState.form.process = 'failed';
+                return;
               }
               const { feed, posts } = data;
               watchedState.feeds.unshift(feed);
               watchedState.posts.unshift(...posts);
               watchedState.form.process = 'successful';
+            }).catch(() => {
+              watchedState.links.shift();
+              watchedState.form.process = 'no-connect';
             });
         }
       });

@@ -36,6 +36,10 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         enable(input, button);
         render.erorrs(input, feedback, text.t('errors.noContent'));
         break;
+      case 'no-connect':
+        enable(input, button);
+        render.erorrs(input, feedback, text.t('errors.network'));
+        break;
       case 'filling':
         enable(input, button);
         break;
