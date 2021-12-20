@@ -6,7 +6,7 @@ export default {
     const textNode = document.createTextNode(text);
     feedback.replaceChildren(textNode);
   },
-  posts: (divOfPosts, text, { posts }) => {
+  posts: (divOfPosts, text, state) => {
     const container = document.createElement('div');
     container.classList.add('card', 'border-0');
     const div = document.createElement('div');
@@ -18,15 +18,19 @@ export default {
     const ul = document.createElement('ul');
     ul.classList.add('list-group', 'border-0', 'rounded-0');
 
-    posts.forEach((element) => {
+    state.posts.forEach((element) => {
       const {
-        postId, postTitle, postLink,
+        postId, postTitle, postDescription, postLink,
       } = element;
 
       const li = document.createElement('li');
       li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       const a = document.createElement('a');
-      a.classList.add('fw-bold');
+      if (state.readPosts.includes(postId)) {
+        a.classList.add('fw-normal', 'link-secondary');
+      } else {
+        a.classList.add('fw-bold');
+      }
       a.setAttribute('href', postLink);
       a.setAttribute('data-id', postId);
       a.setAttribute('target', '_blank');
@@ -40,6 +44,21 @@ export default {
       button.setAttribute('data-bs-toggle', 'modal');
       button.setAttribute('data-bs-target', '#modal');
       button.textContent = text.t('posts.button');
+
+      button.addEventListener('click', () => {
+        const closeButton = document.getElementById('closeButton');
+        closeButton.textContent = text.t('modal.closeButton');
+        const readButton = document.getElementById('readMore');
+        readButton.textContent = text.t('modal.readButton');
+        readButton.setAttribute('href', postLink);
+        const modalTitle = document.querySelector('.modal-title');
+        modalTitle.textContent = postTitle;
+        const modalBody = document.querySelector('.modal-body');
+        modalBody.textContent = postDescription;
+        a.classList.remove('fw-bold');
+        a.classList.add('fw-normal', 'link-secondary');
+        state.readPosts.push(postId);
+      });
 
       li.append(a, button);
       ul.append(li);

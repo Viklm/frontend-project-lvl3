@@ -18,16 +18,10 @@ export default () => {
       feeds: [],
       posts: [],
       readPosts: [],
-      id: {
-        post: 0,
-        fid: 0,
-      },
       form: {
         update: null, // loading, loaded
         validationState: 'valid', // valid, invalid, duplicate
         process: 'filling', // filling, failed, processed, successful
-        processError: null,
-        error: '',
       },
     };
 
@@ -74,6 +68,10 @@ export default () => {
           axios.get(getRssPath(value))
             .then((response) => {
               const data = parser(response.data.contents);
+              if (data === null) {
+                watchedState.links.shift();
+                watchedState.form.process = 'failed';
+              }
               const { feed, posts } = data;
               watchedState.feeds.unshift(feed);
               watchedState.posts.unshift(...posts);

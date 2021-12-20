@@ -34,7 +34,7 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         break;
       case 'failed':
         enable(input, button);
-        render.erorrs(input, feedback, text.t('errors.network'));
+        render.erorrs(input, feedback, text.t('errors.noContent'));
         break;
       case 'filling':
         enable(input, button);
@@ -46,7 +46,7 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         render.posts(divOfPosts, text, state);
         break;
       default:
-        throw new Error(`Unknow status ${value}`);
+        render.erorrs(input, feedback, text.t('errors.network'));
     }
   }
 

@@ -3,7 +3,7 @@ export default (data) => {
   const xml = parser.parseFromString(data, 'application/xml');
   const parserError = xml.querySelector('parsererror');
   if (parserError) {
-    throw new Error('Error parsing XML');
+    return null;
   }
   const feed = {
     id: xml.querySelector('link').textContent.trim(),
