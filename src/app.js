@@ -1,3 +1,4 @@
+import 'bootstrap';
 import axios from 'axios';
 import i18next from 'i18next';
 import watched from './view.js';
