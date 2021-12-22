@@ -7,6 +7,7 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
   const button = document.querySelector('[aria-label="add"]');
   const divOfFeeds = document.querySelector('.feeds');
   const divOfPosts = document.querySelector('.posts');
+  const form = document.querySelector('form');
 
   const disable = (inputEl, buttonEl) => {
     inputEl.setAttribute('readonly', true);
@@ -18,11 +19,8 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
   };
 
   if (path === 'form.validationState') {
-    if (value === 'invalid') {
+    if (!value) {
       render.erorrs(input, feedback, text.t('errors.invalid'));
-    }
-    if (value === 'duplicate') {
-      render.erorrs(input, feedback, text.t('errors.duplicate'));
     }
   }
 
@@ -36,10 +34,10 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         enable(input, button);
         render.erorrs(input, feedback, text.t('errors.noContent'));
         break;
-      case 'no-connect':
-        enable(input, button);
-        render.erorrs(input, feedback, text.t('errors.network'));
-        break;
+      // case 'no-connect':
+      //   enable(input, button);
+      //   render.erorrs(input, feedback, text.t('errors.network'));
+      //   break;
       case 'filling':
         enable(input, button);
         break;
@@ -48,6 +46,8 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         render.successFeedback(input, feedback, text);
         render.feeds(divOfFeeds, text, state);
         render.posts(divOfPosts, text, state);
+        form.reset();
+        document.getElementById('url-input').focus();
         break;
       default:
         render.erorrs(input, feedback, text.t('errors.network'));
