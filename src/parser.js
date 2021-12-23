@@ -17,9 +17,9 @@ export default (data) => {
       });
     return { feed, items };
   } catch (err) {
-    const errObject = new Error(err);
-    errObject.isParsingError = true;
-    throw errObject;
-    // throw new Error(err);
+    // const error = new Error(err);
+    // error.isParsingError = true;
+    // throw error;
+    throw new Error(err);
   }
 };

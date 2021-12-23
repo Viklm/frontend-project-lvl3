@@ -35,28 +35,6 @@ export default () => {
       return url.toString();
     };
 
-    // const updateTime = 5000;
-    // const updatePosts = () => {
-    //   const promises = watchedState.feeds.map((feed) => axios
-    //     .get(getRssPath(feed.link))
-    //     .then((response) => {
-    //       const { posts: updatePosts1 } = parser(response.data.contents);
-    //       const currentPosts = watchedState.posts
-    //         .filter((post) => post.feedId === feed.id)
-    //         .map((post) => post.title);
-    //       const newPosts = updatePosts1.filter((post) => !currentPosts.includes(post.title));
-    //       const newPostsId = newPosts.map((post) => ({
-    //         ...post,
-    //         feedId: feed.id,
-    //         id: _.uniqueId(),
-    //       }));
-    //       watchedState.posts = [...newPostsId, ...watchedState.posts];
-    //     })
-    //     .catch((err) => {
-    //       console.error(err);
-    //     }));
-    //     Promise.all(promises).finally(() => setTimeout(updatePosts(), updateTime));
-    // };
     // setTimeout(updatePosts(), updateTime);
     // const updateTime = 5000;
     // const updatePosts = () => {
@@ -91,7 +69,7 @@ export default () => {
       const links = watchedState.feeds.map((feed) => feed.link);
       validator(value, links)
         .then((errors) => {
-          watchedState.errors = [...errors];
+          state.errors = errors;
           console.log(errors, 'then');
           console.log(watchedState.erorrs, 'then2');
         })
@@ -105,17 +83,19 @@ export default () => {
                 const { feed, items } = parser(response.data.contents);
                 const feedId = { ...feed, id: _.uniqueId() };
                 const itemId = items.map((item) => ({
-                  ...item, id: _.uniqueId(), feedId: feedId.id }));
+                  ...item, id: _.uniqueId(), feedId: feedId.id })); // обязательны ли Id для фидов
                 watchedState.feeds = [feedId, ...watchedState.feeds];
                 watchedState.posts = [...itemId, ...watchedState.posts];
                 watchedState.form.process = 'successful';
               }).catch((err) => {
-                console.log(err, 'valid55');
+                console.log(err, 'catch1');
                 watchedState.form.process = 'failed';
                 if (axios.isAxiosError(err)) {
+                  console.log(err, 'catch2');
                   watchedState.form.processError = i18nextInstance.t('errors.network');
                 }
                 if (err.isParsingError) {
+                  console.log(err, 'catch3');
                   watchedState.form.processError = i18nextInstance.t('errors.noContent');
                 }
               });

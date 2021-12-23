@@ -9,11 +9,12 @@ export default (url, links) => {
       notOneOf: 'errors.duplicate',
     },
   });
-  console.log(links);
   const schema = yup.object().shape({
     website: yup.string().url().notOneOf(links),
   });
-  // const schema = yup.string().url().notOneOf(links);
+  // const schema = yup.string().url().notOneOf(link);
+  // console.log(links);
+  // const link = links.map((feed) => feed.link);
   return schema.validate({ website: url })
     .then(() => [])
     .catch((err) => {
