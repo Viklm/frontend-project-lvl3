@@ -20,11 +20,11 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
 
   if (path === 'form.validationState') {
     if (!value) {
-      render.erorrs(input, feedback, text.t('errors.invalid'));
+      render.erorrs(input, feedback, text, state.erorr);
     }
   }
 
-  if (path === 'form.process') {
+  if (path === 'process') {
     switch (value) {
       case 'processed':
         feedback.textContent = '';
@@ -32,12 +32,8 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         break;
       case 'failed':
         enable(input, button);
-        render.erorrs(input, feedback, state);
+        render.erorrs(input, feedback, text, state.processError);
         break;
-      // case 'no-connect':
-      //   enable(input, button);
-      //   render.erorrs(input, feedback, text.t('errors.network'));
-      //   break;
       case 'filling':
         enable(input, button);
         break;
@@ -50,11 +46,11 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         document.getElementById('url-input').focus();
         break;
       default:
-        render.erorrs(input, feedback, text.t('errors.network'));
+        throw new Error('Oops, Something went wrong!');
     }
   }
 
-  if (path === 'form.update') {
+  if (path === 'update') {
     if (value === 'loaded') {
       render.posts(divOfPosts, text, state);
     }

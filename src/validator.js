@@ -9,17 +9,8 @@ export default (url, links) => {
       notOneOf: 'errors.duplicate',
     },
   });
-  const schema = yup.object().shape({
-    website: yup.string().url().notOneOf(links),
-  });
-  // const schema = yup.string().url().notOneOf(link);
-  // console.log(links);
-  // const link = links.map((feed) => feed.link);
-  return schema.validate({ website: url })
+  const schema = yup.string().url().notOneOf(links);
+  return schema.validate(url)
     .then(() => [])
-    .catch((err) => {
-      console.log(err, 'valid2');
-      console.log(err.errors, 'valid3');
-      return err.errors;
-    });
+    .catch((err) => err.errors);
 };

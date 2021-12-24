@@ -1,9 +1,9 @@
 export default {
-  erorrs: (input, feedback, text) => {
+  erorrs: (input, feedback, text, state) => {
     input.classList.add('is-invalid');
     feedback.classList.add('text-danger');
     feedback.classList.remove('text-success');
-    const textNode = document.createTextNode(text);
+    const textNode = document.createTextNode(text.t(state));
     feedback.replaceChildren(textNode);
   },
   posts: (divOfPosts, text, state) => {

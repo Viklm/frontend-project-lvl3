@@ -1,11 +1,11 @@
-export default (data) => {
+export default (data, url) => {
   try {
     const parser = new DOMParser();
     const xml = parser.parseFromString(data, 'application/xml');
     const feed = {
-      link: xml.querySelector('link').textContent.trim(),
       title: xml.querySelector('title').textContent.trim(),
       description: xml.querySelector('description').textContent.trim(),
+      link: url,
     };
     const items = Array.from(xml.querySelectorAll('item'))
       .map((item) => {
@@ -17,9 +17,7 @@ export default (data) => {
       });
     return { feed, items };
   } catch (err) {
-    // const error = new Error(err);
-    // error.isParsingError = true;
-    // throw error;
-    throw new Error(err);
+    err.parsingFall = true;
+    throw err;
   }
 };

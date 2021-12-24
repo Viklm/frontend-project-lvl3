@@ -15,16 +15,15 @@ export default () => {
     resources,
   }).then(() => {
     const state = {
-      erorrs: [],
-      links: [],
+      erorr: [],
       feeds: [],
       posts: [],
       readPosts: [],
+      update: null, // loading, loaded
+      process: 'filling', // filling, failed, processed, successful
+      processError: null,
       form: {
         validationState: null, // true, false
-        update: null, // loading, loaded
-        process: 'filling', // filling, failed, processed, successful, no-connect
-        processError: null,
       },
     };
 
@@ -35,31 +34,27 @@ export default () => {
       return url.toString();
     };
 
-    // setTimeout(updatePosts(), updateTime);
-    // const updateTime = 5000;
-    // const updatePosts = () => {
-    //   watchedState.form.update = 'loading';
-    //   const request = (path) => axios.get(getRssPath(path))
-    //     .then((response) => parser(response.data.contents))
-    //     .then(({ posts }) => posts);
-    //   Promise.all(watchedState.feeds.map((feed) => request(feed.link)))
-    //     .then((data) => {
-    //       const result = data.flat();
-    //       const diff = _.differenceWith(result, watchedState.posts, _.isEqual);
-    //       watchedState.posts.splice(0, watchedState.posts.length);
-    //       watchedState.posts.unshift(...diff);
-    //       watchedState.form.update = 'loaded';
-    //       setTimeout(updatePosts, updateTime);
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //       watchedState.form.update = 'loading';
-    //       updatePosts();
-    //     });
-    //   return true;
-    // };
-
-    // setTimeout(updatePosts, updateTime);
+    const timeForUpdate = 5000;
+    const updatePosts = () => {
+      watchedState.update = 'loading';
+      const promises = watchedState.feeds.map((feed) => {
+        const request = axios.get(getRssPath(feed.link))
+          .then((response) => {
+            const { items } = parser(response.data.contents, feed.link);
+            const newItems = _.differenceWith(
+              items,
+              watchedState.posts,
+              ({ title: newTitle }, { title }) => _.isEqual(newTitle, title),
+            );
+            watchedState.posts = [...newItems, ...watchedState.posts];
+            watchedState.update = 'loaded';
+            return null;
+          })
+          .catch((err) => console.log(err));
+        return request;
+      });
+      Promise.all(promises).finally(() => setTimeout(updatePosts, timeForUpdate));
+    };
 
     const form = document.querySelector('form');
     form.addEventListener('submit', (e) => {
@@ -67,40 +62,34 @@ export default () => {
       const formData = new FormData(e.target);
       const value = formData.get('url').trim();
       const links = watchedState.feeds.map((feed) => feed.link);
+      watchedState.process = 'processed';
       validator(value, links)
         .then((errors) => {
-          state.errors = errors;
-          console.log(errors, 'then');
-          console.log(watchedState.erorrs, 'then2');
+          watchedState.erorr = errors;
         })
         .then(() => {
-          watchedState.form.validationState = _.isEmpty(watchedState.errors);
+          watchedState.form.validationState = _.isEmpty(watchedState.erorr);
           if (watchedState.form.validationState) {
-            watchedState.form.process = 'processed';
-            watchedState.form.processError = null;
+            watchedState.processError = null;
             axios.get(getRssPath(value))
               .then((response) => {
-                const { feed, items } = parser(response.data.contents);
-                const feedId = { ...feed, id: _.uniqueId() };
-                const itemId = items.map((item) => ({
-                  ...item, id: _.uniqueId(), feedId: feedId.id })); // обязательны ли Id для фидов
-                watchedState.feeds = [feedId, ...watchedState.feeds];
+                const { feed, items } = parser(response.data.contents, value);
+                const itemId = items.map((item) => ({ ...item, id: _.uniqueId() }));
+                watchedState.feeds = [feed, ...watchedState.feeds];
                 watchedState.posts = [...itemId, ...watchedState.posts];
-                watchedState.form.process = 'successful';
+                watchedState.process = 'successful';
               }).catch((err) => {
-                console.log(err, 'catch1');
-                watchedState.form.process = 'failed';
                 if (axios.isAxiosError(err)) {
-                  console.log(err, 'catch2');
-                  watchedState.form.processError = i18nextInstance.t('errors.network');
+                  watchedState.processError = 'errors.network';
                 }
-                if (err.isParsingError) {
-                  console.log(err, 'catch3');
-                  watchedState.form.processError = i18nextInstance.t('errors.noContent');
+                if (err.parsingFall) {
+                  watchedState.processError = 'errors.noContent';
                 }
+                watchedState.process = 'failed';
               });
           }
         });
     });
+    setTimeout(updatePosts, timeForUpdate);
   });
 };
