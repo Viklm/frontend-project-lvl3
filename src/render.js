@@ -1,5 +1,5 @@
 export default {
-  erorrs: (input, feedback, text, state) => {
+  errors: (input, feedback, text, state) => {
     input.classList.add('is-invalid');
     feedback.classList.add('text-danger');
     feedback.classList.remove('text-success');

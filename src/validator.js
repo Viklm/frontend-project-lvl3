@@ -10,7 +10,5 @@ export default (url, links) => {
     },
   });
   const schema = yup.string().url().notOneOf(links);
-  return schema.validate(url)
-    .then(() => [])
-    .catch((err) => err.errors);
+  return schema.validate(url);
 };

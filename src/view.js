@@ -1,13 +1,10 @@
 import onChange from 'on-change';
 import render from './render.js';
 
-const watchedState = (state, text) => onChange(state, (path, value) => {
-  const feedback = document.querySelector('p.feedback');
-  const input = document.getElementById('url-input');
-  const button = document.querySelector('[aria-label="add"]');
-  const divOfFeeds = document.querySelector('.feeds');
-  const divOfPosts = document.querySelector('.posts');
-  const form = document.querySelector('form');
+const watchedState = (state, text, elements) => onChange(state, (path, value) => {
+  const {
+    feedback, input, button, divOfFeeds, divOfPosts, form,
+  } = elements;
 
   const disable = (inputEl, buttonEl) => {
     inputEl.setAttribute('readonly', true);
@@ -20,11 +17,12 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
 
   if (path === 'form.validationState') {
     if (!value) {
-      render.erorrs(input, feedback, text, state.erorr);
+      render.errors(input, feedback, text, state.error);
+      enable(input, button);
     }
   }
 
-  if (path === 'process') {
+  if (path === 'addFeedsProcess') {
     switch (value) {
       case 'processed':
         feedback.textContent = '';
@@ -32,7 +30,7 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
         break;
       case 'failed':
         enable(input, button);
-        render.erorrs(input, feedback, text, state.processError);
+        render.errors(input, feedback, text, state.processError);
         break;
       case 'filling':
         enable(input, button);
@@ -50,7 +48,7 @@ const watchedState = (state, text) => onChange(state, (path, value) => {
     }
   }
 
-  if (path === 'update') {
+  if (path === 'feedsUpdating') {
     if (value === 'loaded') {
       render.posts(divOfPosts, text, state);
     }
