@@ -6,7 +6,6 @@ export default (data, url) => {
     const textError = parserError.textContent;
     const err = new Error(textError);
     err.parsingFall = true;
-    console.log(err);
     throw err;
   }
   const feed = {
