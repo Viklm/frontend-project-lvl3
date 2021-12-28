@@ -76,15 +76,14 @@ export default () => {
       watchedState.form.validationState = true;
       validator(value, links)
         .then((url) => {
-          const request = axios.get(getRssPath(url))
-            .then((response) => {
-              const { feed, items } = parser(response.data.contents, value);
-              const itemId = items.map((item) => ({ ...item, id: _.uniqueId() }));
-              watchedState.feeds = [feed, ...watchedState.feeds];
-              watchedState.posts = [...itemId, ...watchedState.posts];
-              watchedState.addFeedsProcess = 'successful';
-            });
+          const request = axios.get(getRssPath(url));
           return request;
+        }).then((response) => {
+          const { feed, items } = parser(response.data.contents, value);
+          const itemId = items.map((item) => ({ ...item, id: _.uniqueId() }));
+          watchedState.feeds = [feed, ...watchedState.feeds];
+          watchedState.posts = [...itemId, ...watchedState.posts];
+          watchedState.addFeedsProcess = 'successful';
         }).catch((err) => {
           if (err.name === 'ValidationError') {
             watchedState.error = err.errors;

@@ -3,8 +3,10 @@ export default (data, url) => {
   const xml = parser.parseFromString(data, 'application/xml');
   const parserError = xml.querySelector('parsererror');
   if (parserError) {
-    const err = new Error();
+    const textError = parserError.textContent;
+    const err = new Error(textError);
     err.parsingFall = true;
+    console.log(err);
     throw err;
   }
   const feed = {
