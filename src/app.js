@@ -73,28 +73,31 @@ export default () => {
       const value = formData.get('url').trim();
       const links = watchedState.feeds.map((feed) => feed.link);
       watchedState.addFeedsProcess = 'processed';
+      watchedState.form.validationState = true;
       validator(value, links)
-        .then((data) => {
-          watchedState.processError = null;
-          axios.get(getRssPath(data))
+        .then((url) => {
+          const request = axios.get(getRssPath(url))
             .then((response) => {
               const { feed, items } = parser(response.data.contents, value);
               const itemId = items.map((item) => ({ ...item, id: _.uniqueId() }));
               watchedState.feeds = [feed, ...watchedState.feeds];
               watchedState.posts = [...itemId, ...watchedState.posts];
               watchedState.addFeedsProcess = 'successful';
-            }).catch((err) => {
-              if (axios.isAxiosError(err)) {
-                watchedState.processError = 'errors.network';
-              }
-              if (err.parsingFall) {
-                watchedState.processError = 'errors.noContent';
-              }
-              watchedState.addFeedsProcess = 'failed';
             });
+          return request;
         }).catch((err) => {
-          watchedState.error = err.errors;
-          watchedState.form.validationState = false;
+          if (err.name === 'ValidationError') {
+            watchedState.error = err.errors;
+            watchedState.form.validationState = false;
+          }
+          if (axios.isAxiosError(err)) {
+            watchedState.processError = 'errors.network';
+            watchedState.addFeedsProcess = 'failed';
+          }
+          if (err.parsingFall) {
+            watchedState.processError = 'errors.noContent';
+            watchedState.addFeedsProcess = 'failed';
+          }
         });
     });
     setTimeout(updatePosts, timeForUpdate);
